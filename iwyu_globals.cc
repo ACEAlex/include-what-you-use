@@ -124,6 +124,7 @@ static void PrintHelp(const char* extra_msg) {
          "   --quoted_includes_first: when sorting includes, place quoted\n"
          "        ones first.\n"
          "   --cxx17ns: suggests the more concise syntax introduced in C++17\n"
+         "   --cxx17ns_formatted: Same as cxx17ns but with format friendly output\n"
          "   --error[=N]: exit with N (default: 1) for iwyu violations\n"
          "   --error_always[=N]: always exit with N (default: 1) (for use\n"
          "        with 'make -k')\n"
@@ -221,6 +222,7 @@ CommandlineFlags::CommandlineFlags()
       no_fwd_decls(false),
       quoted_includes_first(false),
       cxx17ns(false),
+      cxx17ns_formatted(false),
       exit_code_error(EXIT_SUCCESS),
       exit_code_always(EXIT_SUCCESS),
       regex_dialect(RegexDialect::LLVM) {
@@ -245,6 +247,7 @@ int CommandlineFlags::ParseArgv(int argc, char** argv) {
     {"no_fwd_decls", no_argument, nullptr, 'f'},
     {"quoted_includes_first", no_argument, nullptr, 'q' },
     {"cxx17ns", no_argument, nullptr, 'C'},
+    {"cxx17ns_formatted", no_argument, nullptr, 'D'},
     {"error", optional_argument, nullptr, 'e'},
     {"error_always", optional_argument, nullptr, 'a'},
     {"debug", required_argument, nullptr, 'd'},
@@ -295,6 +298,7 @@ int CommandlineFlags::ParseArgv(int argc, char** argv) {
         break;
       case 'q': quoted_includes_first = true; break;
       case 'C': cxx17ns = true; break;
+      case 'D': cxx17ns = true; cxx17ns_formatted = true; break;
       case 'e':
         if (!optarg) {
           exit_code_error = EXIT_FAILURE;
