@@ -29,6 +29,9 @@ struct One4 {
   One4();
 };
 }
+struct One5 {
+  One5();
+};
 }  // namespace a
 
 #endif  // INCLUDE_WHAT_YOU_USE_TESTS_CXX_CXX17NS_I1_H_
