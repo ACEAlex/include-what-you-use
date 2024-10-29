@@ -2151,12 +2151,52 @@ size_t PrintableDiffs(const string& filename,
   if (ShouldPrint(0)) {
     output_lines.push_back(
       OutputLine("\nThe full include-list for " + filename + ":"));
+    std::string last_ns;
+
+    auto closing_brackets = [](const auto& ns) {
+      // outputs a closing bracket string for a given namespace
+      auto num_brackets = std::count(ns.begin(), ns.end(), '{') + 1;
+      std::string brackets;
+      for (auto i = 0; i < num_brackets; ++i) {
+        if (!brackets.empty()) {
+          brackets += " ";
+        }
+        brackets += "}";
+      }
+      return brackets;
+    };
+
     for (const auto& key_line : sorted_lines) {
       const OneIncludeOrForwardDeclareLine* line = key_line.second;
       if (line->is_desired() && !line->is_elaborated_type()) {
-        output_lines.push_back(
-          PrintableIncludeOrForwardDeclareLine(*line, aqi));
+        if (GlobalFlags().cxx17ns_formatted && line->line().rfind("namespace ", 0) == 0)
+        {
+          auto current_ns = line->line().substr(0, line->line().rfind(" {"));
+          auto name_start = line->line().rfind("{") + 2;
+          auto name_end = line->line().find("}") - 2;
+          auto name = line->line().substr(name_start, name_end-name_start);
+
+          if (current_ns != last_ns)
+          {
+            if (!last_ns.empty())
+            {
+              output_lines.push_back(OutputLine(closing_brackets(last_ns)));
+            }
+            output_lines.push_back(OutputLine(""));
+            output_lines.push_back(OutputLine(current_ns + " {"));
+            last_ns = current_ns;
+          }
+          output_lines.push_back(OutputLine(name + ";"));
+        }
+        else {
+          output_lines.push_back(
+            PrintableIncludeOrForwardDeclareLine(*line, aqi));
+        }
       }
+    }
+    if (!last_ns.empty())
+    {
+      output_lines.push_back(OutputLine(closing_brackets(last_ns)));
     }
   }
 
